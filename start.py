@@ -5,7 +5,7 @@ try:
         host="localhost",
         port=3306,
         user='root',
-        password='DataBase0321',  # вставить свой пароль
+        password='password',  # вставить свой пароль
         database='musei',
         cursorclass=pymysql.cursors.DictCursor
     )
