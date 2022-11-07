@@ -35,3 +35,13 @@ def delete_ex(nameExhibit, connection):
         create_table = f"DELETE FROM `exhibit` WHERE nameExhibit = {nameExhibit};"
         cursor.execute(create_table)
         connection.commit()
+
+def showUserex(connection):
+    with connection.cursor() as cursor:
+        select_result = cursor.execute(f"select * from 'userex';")
+        cursor.execute(select_result)
+        result = cursor.fetchall()
+    result_return = []
+    for e in result:
+        result_return.append(f"{e.get('loginPerson')} > {e.get('nameExhibit')}")
+    return
