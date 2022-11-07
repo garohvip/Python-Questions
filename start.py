@@ -15,7 +15,7 @@ try:
         cursor.execute(create_table)
         create_table = "CREATE TABLE `users` (idUser INT AUTO_INCREMENT, name varchar(30), login varchar(30) UNIQUE, password varchar(30), PRIMARY KEY (idUser));"
         cursor.execute(create_table)
-        create_table = "CREATE TABLE `exhibit` (idEx INT AUTO_INCREMENT, nameExhibit varchar(30) UNIQUE, year INT, description varchar(30), PRIMARY KEY (idEx));"
+        create_table = "CREATE TABLE `exhibit` (idEx INT AUTO_INCREMENT, nameExhibit varchar(30) UNIQUE, year INT, description varchar(255), PRIMARY KEY (idEx));"
         cursor.execute(create_table)
         create_table = "CREATE TABLE `userex` (idPer INT AUTO_INCREMENT, loginPerson varchar(30), " \
                        "nameExhibit varchar(30), PRIMARY KEY (idPer), " \
