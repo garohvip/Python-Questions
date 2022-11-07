@@ -5,6 +5,7 @@ def add(insert_info, connection):                       # Через інтер�
         cursor.execute(data)
         connection.commit()
 
+
 def showAll(connection):
     choice = buttonbox("Choice what", "Enter", ["All", "By ID"])
     if choice == "All":
