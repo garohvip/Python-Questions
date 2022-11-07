@@ -5,12 +5,14 @@ try:
         host="localhost",
         port=3306,
         user='root',
-        password='DataBase0321',  # вставить свой пароль
+        password='Andrik89@',  # вставить свой пароль
         database='musei',
         cursorclass=pymysql.cursors.DictCursor
     )
     print("Welcome to the Database!")
     with connection.cursor() as cursor:
+        create_table = "CREATE SCHEMA `musei`;"
+        cursor.execute(create_table)
         create_table = "CREATE TABLE `users` (idUser INT AUTO_INCREMENT, name varchar(30), login varchar(30) UNIQUE, password varchar(30), PRIMARY KEY (idUser));"
         cursor.execute(create_table)
         create_table = "CREATE TABLE `exhibit` (idEx INT AUTO_INCREMENT, nameExhibit varchar(30) UNIQUE, year INT, description varchar(30), PRIMARY KEY (idEx));"
