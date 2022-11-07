@@ -5,6 +5,30 @@ def add(insert_info, connection):                       # Через інтер�
         cursor.execute(data)
         connection.commit()
 
+def showAll(connection):
+    choice = buttonbox("Choice what", "Enter", ["All", "By ID"])
+    if choice == "All":
+        with connection.cursor() as cursor:
+            select_all = cursor.execute(f"select * from 'exhibit';")
+            cursor.execute(select_all)
+            result = cursor.fetchall()
+            msgbox(result)
+    elif choice == "By ID":
+        choice = int(enterbox("Enter id:"))
+        with connection.cursor() as cursor:
+            select_all = cursor.execute(f"select * from 'exhibit' where id = {choice};")
+            cursor.execute(select_all)
+            result = cursor.fetchall()
+            msgbox(result)
+
+
+def insertExp(connection):
+    with connection.cursor() as cursor:
+        cursor.execute(f"select * from 'exhibit';")
+        output = cursor.fetchall()
+    ins = choicebox("Choice", "Here", ["some", "someone"])
+    inp = multenterbox()
+
 def delete_ex(nameExhibit, connection):
 
     with connection.cursor() as cursor:
