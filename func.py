@@ -85,3 +85,6 @@ def showUserex(connection):
     for e in result:
         result_return.append(f"'{e.get('loginPerson')}' > '{e.get('nameExhibit')}'")
     return
+
+
+
