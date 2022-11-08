@@ -1,5 +1,4 @@
 login = ''
-password = ''
 def authorization(connection):
     with connection.cursor() as cursor:
         show_all = "SELECT login, password FROM `users`"
