@@ -1,8 +1,4 @@
-def __init__(self,login,password):
-    self.login = login
-    self.password = password
-
-def authorization(self,connection):
+def authorization(connection):
     with connection.cursor() as cursor:
         show_all = "SELECT login, password FROM `users`"
         cursor.execute(show_all)
@@ -15,8 +11,8 @@ def authorization(self,connection):
 
             if author[0].lower == i.get('login') and author[1].lower == i.get('password'):
                 msgbox('Авторизація успішна')
-                self.login = author[0].lower       #Для того щоб брати цю інфу в файлі func
-                self.password = author[1].lower
+                login = author[0].lower       #Для того щоб брати цю інфу в файлі func
+                password = author[1].lower
                 valid = True
 
             else:
@@ -24,7 +20,8 @@ def authorization(self,connection):
                 valid = False
                 return True
 
-def registration(self,connection):
+
+def registration(connection):
     with connection.cursor() as cursor:
         show_all = 'SELECT login FROM `users`'
         cursor.execute(show_all)
@@ -40,10 +37,10 @@ def registration(self,connection):
                 continue
 
             else:
-                self.login = info[1].lower
-                self.password = info[2].lower
+                login = info[1].lower
+                password = info[2].lower
                 with connection.cursor() as cursor:
-                    f"INSERT `users` (name, login, password) values ({info[0].lower},{info[1].lower},{info[2].lower}):
+                    f"INSERT `users` (name, login, password) values ({info[0].lower},{info[1].lower},{info[2].lower})"
                     connection.commit()
                     valid = True
                     return True
