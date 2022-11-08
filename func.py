@@ -1,3 +1,7 @@
+from easygui import *
+import auth
+
+
 def add(insert_info, connection):                       # Через інтерфейс(multenterbox) отримуємо всю інфу списком
     with connection.cursor() as cursor:
         data = "insert into `exhibit` (nameExhibit, year, description) values " \
@@ -30,12 +34,46 @@ def insertExp(connection):
     ins = choicebox("Choice", "Here", ["some", "someone"])
     inp = multenterbox()
 
+
 def delete_ex(nameExhibit, connection):
 
     with connection.cursor() as cursor:
-        create_table = f"DELETE FROM `exhibit` WHERE nameExhibit = {nameExhibit};"
+        create_table = f"SELECT loginPerson, nameExhibit FROM `userex` WHERE loginPerson = '{auth.login}';"
         cursor.execute(create_table)
-        connection.commit()
+        result = cursor.fetchall()
+
+    valid = False
+    while valid:
+        usersExhibit = []
+        for e in result:
+            usersExhibit.append(e.get('nameExhibit'))
+            break
+        nameEx = enterbox(f"Ваші експонати: '{usersExhibit}'\nВведіть назву експонату для видалення")
+        if nameEx not in usersExhibit:
+                msgbox('Данного експонату не знайдено')
+                valid = False
+                continue
+        else:
+            with connection.cursor() as cursor:
+                show_info = f"SELECT * FROM `exhibit` WHERE nameExhibit = '{nameEx}';"
+                cursor.execute(show_info)
+                result = cursor.fetchall()
+                for e in result:
+                    after_del = buttonbox(f"{e.get('nameExhibit')} - Назва експонату\n{e.get('year')} - Рік експонату\n"
+                                          f"{e.get('description')} - Опис експонату", 'DELETE', ['Видалити', 'Відміна'])  #Якшо він один виведе одне вікно
+
+                    if after_del == 'Видалити':
+                        with connection.cursor() as cursor:
+                            create_table = f"DELETE FROM `exhibit` WHERE nameExhibit = '{nameEx}';"
+                            cursor.execute(create_table)
+                            connection.commit()
+                        with connection.cursor() as cursor:
+                            create_table = f"DELETE FROM `userex` WHERE nameExhibit = '{nameEx}';"
+                            cursor.execute(create_table)
+                            connection.commit()
+                            return True
+                    else:
+                        return True
 
 def showUserex(connection):
     with connection.cursor() as cursor:
@@ -44,5 +82,5 @@ def showUserex(connection):
         result = cursor.fetchall()
     result_return = []
     for e in result:
-        result_return.append(f"{e.get('loginPerson')} > {e.get('nameExhibit')}")
+        result_return.append(f"'{e.get('loginPerson')}' > '{e.get('nameExhibit')}'")
     return
