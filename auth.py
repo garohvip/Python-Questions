@@ -1,4 +1,8 @@
-def authorization(connection):
+def __init__(self,login,password):
+    self.login = login
+    self.password = password
+
+def authorization(self,connection):
 
     try:
         with connection.cursor() as cursor:
@@ -13,6 +17,8 @@ def authorization(connection):
 
                 if author[0].lower == i.get('login') and author[1].lower == i.get('password'):
                     msgbox('Авторизація успішна')
+                    self.login = author[0].lower       #Для того щоб брати цю інфу в файлі func
+                    self.password = author[1].lower
                     valid = True
 
                 else:
@@ -23,7 +29,7 @@ def authorization(connection):
     finally:
         return True
 
-def registration(connection):
+def registration(self,connection):
 
     try:
         with connection.cursor() as cursor:
@@ -35,11 +41,14 @@ def registration(connection):
             info = multpasswordbox('Введіть данні для реєстрації', 'registration', ['Name','Login', 'Password'])
             for e in result:
 
-                if info[0] == e.get('login'):
+                if info[1] == e.get('login'):
                     msgbox('Такий логін вже існує вигадайте інший.')
                     valid = False
+                    continue
 
                 else:
+                    self.login = info[1].lower
+                    self.password = info[2].lower
                     with connection.cursor() as cursor:
                         f"INSERT `users` (name, login, password) values ({info[0].lower},{info[1].lower},{info[2].lower}):
                         connection.commit()
