@@ -35,13 +35,14 @@ def registration(connection):
             info = multpasswordbox('Введіть данні для реєстрації', 'registration', ['Name','Login', 'Password'])
             for e in result:
 
-                if info[0] == e:
+                if info[0] == e.get('login'):
                     msgbox('Такий логін вже існує вигадайте інший.')
                     valid = False
 
                 else:
                     with connection.cursor() as cursor:
                         f"INSERT `users` (name, login, password) values ({info[0].lower},{info[1].lower},{info[2].lower}):
+                        connection.commit()
                         valid = True
                         return True
 
