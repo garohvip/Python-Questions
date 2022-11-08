@@ -11,7 +11,7 @@ def authorization(self,connection):
             result = cursor.fetchall()
 
         valid = False
-        while valid:
+        while not valid:
             author = multpasswordbox('Введіть данні для авторизації', 'authorizaton', ['Login', 'Password'])
             for i in result:
 
@@ -37,7 +37,7 @@ def registration(self,connection):
             cursor.execute(show_all)
             result = cursor.fetchall()
         valid = False
-        while valid:
+        while not valid:
             info = multpasswordbox('Введіть данні для реєстрації', 'registration', ['Name','Login', 'Password'])
             for e in result:
 
@@ -57,3 +57,4 @@ def registration(self,connection):
 
     finally:
         return True
+
