@@ -38,31 +38,31 @@ def insertExp(connection):
 def delete_ex(nameExhibit, connection):
 
     with connection.cursor() as cursor:
-        create_table = f"SELECT loginPerson, nameExhibit FROM `userex` WHERE loginPerson = '{auth.login}';"
+        create_table = f"SELECT loginPerson, nameExhibit FROM `userex` WHERE loginPerson = '{auth.login}';"             #ми беремо логін і ім'я користувача
         cursor.execute(create_table)
         result = cursor.fetchall()
-
-    valid = False
-    while valid:
-        usersExhibit = []
-        for e in result:
+        usersExhibit = []                                                                                               # Ліст для назв експонатів, авторизованого користувача
+        for e in result:                                                                                                # Цикл для поповнення ліста
             usersExhibit.append(e.get('nameExhibit'))
             break
-        nameEx = enterbox(f"Ваші експонати: '{usersExhibit}'\nВведіть назву експонату для видалення")
-        if nameEx not in usersExhibit:
+
+    valid = False
+    while valid:                                                                                                        #цикл щоб у користувача було декілька спроб ввести вірно
+        nameEx = enterbox(f"Ваші експонати: '{usersExhibit}'\nВведіть назву експонату для видалення")                   #Вивід назв експонатів, щоб користувач бачив що вводити
+        if nameEx not in usersExhibit:                                                                                  #Перевірка на правильність вводу
                 msgbox('Данного експонату не знайдено')
                 valid = False
                 continue
         else:
             with connection.cursor() as cursor:
-                show_info = f"SELECT * FROM `exhibit` WHERE nameExhibit = '{nameEx}';"
+                show_info = f"SELECT * FROM `exhibit` WHERE nameExhibit = '{nameEx}';"                                  #Якшо все ок, запит на бд для виведення всього про експонат
                 cursor.execute(show_info)
                 result = cursor.fetchall()
                 for e in result:
-                    after_del = buttonbox(f"{e.get('nameExhibit')} - Назва експонату\n{e.get('year')} - Рік експонату\n"
-                                          f"{e.get('description')} - Опис експонату", 'DELETE', ['Видалити', 'Відміна'])  #Якшо він один виведе одне вікно
+                    after_del = buttonbox(f"{e.get('nameExhibit')} - Назва експонату\n{e.get('year')} - Рік експонату\n"#розпарсили данні з дікта
+                                          f"{e.get('description')} - Опис експонату", 'DELETE', ['Видалити', 'Відміна'])#запит на видалення, дві кнопки
 
-                    if after_del == 'Видалити':
+                    if after_del == 'Видалити':                                                                         #Якшо +, то видаляємо із бази exhibit та userex
                         with connection.cursor() as cursor:
                             create_table = f"DELETE FROM `exhibit` WHERE nameExhibit = '{nameEx}';"
                             cursor.execute(create_table)
@@ -72,7 +72,8 @@ def delete_ex(nameExhibit, connection):
                             cursor.execute(create_table)
                             connection.commit()
                             return True
-                    else:
+                    else:                                                                                               #Якшо ні, то закінчуємо функцію
+                        valid = True
                         return True
 
 def showUserex(connection):
