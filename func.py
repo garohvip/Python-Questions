@@ -53,6 +53,7 @@ def delete_ex(nameExhibit, connection):
                 msgbox('Данного експонату не знайдено')
                 valid = False
                 continue
+
         else:
             with connection.cursor() as cursor:
                 show_info = f"SELECT * FROM `exhibit` WHERE nameExhibit = '{nameEx}';"                                  #Якшо все ок, запит на бд для виведення всього про експонат
