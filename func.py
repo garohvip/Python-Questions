@@ -76,6 +76,7 @@ def delete_ex(nameExhibit, connection):
                         valid = True
                         return True
 
+
 def showUserex(connection):
     with connection.cursor() as cursor:
         select_result = cursor.execute(f"select * from 'userex';")
@@ -85,6 +86,4 @@ def showUserex(connection):
     for e in result:
         result_return.append(f"'{e.get('loginPerson')}' > '{e.get('nameExhibit')}'")
     return
-
-
 
