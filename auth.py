@@ -1,4 +1,4 @@
-def authorization(self):
+def authorization(connection):
 
     try:
         with connection.cursor() as cursor:
@@ -23,7 +23,7 @@ def authorization(self):
     finally:
         return True
 
-def registration(self):
+def registration(connection):
 
     try:
         with connection.cursor() as cursor:
