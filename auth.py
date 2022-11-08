@@ -1,4 +1,6 @@
-def authorization(connection):
+login = ''
+password = ''
+def authorization(self, connection):
     with connection.cursor() as cursor:
         show_all = "SELECT login, password FROM `users`"
         cursor.execute(show_all)
@@ -21,7 +23,7 @@ def authorization(connection):
                 return True
 
 
-def registration(connection):
+def registration(self, connection):
     with connection.cursor() as cursor:
         show_all = 'SELECT login FROM `users`'
         cursor.execute(show_all)
