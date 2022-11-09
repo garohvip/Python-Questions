@@ -1,4 +1,3 @@
-import start
 import pymysql
 from func import *
 from auth import *
