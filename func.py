@@ -21,6 +21,7 @@ def showAll(connection):
     elif choice == "Single":
         choose = enterbox("Enter name")
         msgbox([e for e in result if choose in e.get('nameExhibit') f"{e.get('nameExhibit')} - Назва\n {e.get('year')} - рік\n{e.get('description')} - Опис\n"])
+    return True
 
 
 
