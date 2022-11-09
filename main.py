@@ -29,7 +29,7 @@ try:
                         if enter_action == "Посмотреть экспонаты":
                             what_check = buttonbox("По какому критерию хотите посмотреть?", "Check", ["Посмотреть все", "Инфо по определенному экспонату", "Экспонаты других людей", "По критерию"])
                             if what_check == "Посмотреть все":
-                                pass
+                                showAll(connection)
                             elif what_check == "Инфо по определенному экспонату":
                                 if not show_exhibit(connection):
                                     msgbox("Данного экспоната не найдено")
@@ -49,7 +49,6 @@ try:
                                 msgbox("Операция отменена")
                         elif enter_action == "Изменить экспонат":
                             pass
-                            # msgbox(checkCart(connection, auto_enter[0].lower()))
                         else:
                             break
                 else:

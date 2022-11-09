@@ -3,132 +3,112 @@ import auth
 
 
 def add(connection):
-    insert_info = multenterbox("Add exhibit", "Add", ["Name", "Year", "Criterion[до нашей эры/наша эра]", "Description"])
+    count = 0
     with connection.cursor() as cursor:
-        data = "insert into `exhibit` (nameExhibit, year, criterion, description) values " \
-                             f"('{insert_info[0]}', '{insert_info[1]}', '{insert_info[2]}', '{insert_info[3]}')"
-        cursor.execute(data)
-        connection.commit()
+        cursor.execute(f"""SELECT nameExhibit FROM exhibit;""")
+        check = cursor.fetchall()
+    while True:
+        insert_info = multenterbox("Введите данные нового экспоната:", "Add", ["Название:", "Год:", "Описание:"])
+        for i in check:
+            if i.get('nameExhibit') != insert_info[0]:
+                count += 1
+        if count == len(check):
+            criterion = choicebox("Выберите критерий экспоната:", "Add", ["До нашей эры", "Наша эра"])
+            if buttonbox(f"""Все ли верно?\n\nНазвание: {insert_info[0]}\nГод: {insert_info[1]}\nОписание: {insert_info[2]}\nКритерий {criterion}""") == "Добавить":
+                with connection.cursor() as cursor:
+                    cursor.execute(f"""INSERT INTO exhibit (nameExhibit, year, description, criterion) VALUES ('{insert_info[0].title()}', {insert_info[1]}, '{insert_info[2]}', '{criterion.lower()}');""")
+                    cursor.execute(f"""INSERT INTO userex (loginPerson, nameExhibit) VALUES ('{auth.login}', '{insert_info[0]}');""")
+                    connection.commit()
+                return True
+            else:
+                return False
+        else:
+            return msgbox("Данный экспонат уже есть в списке")
+
+def show_exhibit(connection):
+    enter = enterbox("Введите название экспоната")
+    with connection.cursor() as cursor:
+        cursor.execute(f"""SELECT * FROM exhibit WHERE = '{enter.title()}';""")
+        result = cursor.fetchone()
+    if result:
+        return msgbox(f"№ {result.get('idEx')}\nНазвание: {result.get('nameExhibit')}\nГод: {result.get('year')}\nОписание: {result.get('description')}\nКритерий: {result.get('criterion')}")
+    else:
+        return False
 
 
 def showAll(connection):
-    choice = buttonbox("Choice what", "Enter", ["All", "Single"])
-    with connection.cursor() as cursor:
-        select_all = cursor.execute(f"select * from `exhibit`;")
-        cursor.execute(select_all)
-        result = cursor.fetchall()
-    if choice == "All":
-        info = []
-        for e in result:
-            info.append(f"'{e.get('nameExhibit')}' - Назва\n '{e.get('year')}' - рік\n'{e.get('description')}' - Опис\n")
-        msgbox(f'{info}')
-    elif choice == "Single":
-        choose = enterbox("Enter name")
-        for e in result:
-            if e.get('nameExhibit') == choose:
-                msgbox(f"{e.get('nameExhibit')}' - Назва\n '{e.get('year')}' - рік\n'{e.get('description')}' - Опис\n")
-    return True
-
-
-
-
-def insertExp(connection):
     with connection.cursor() as cursor:
         cursor.execute(f"select * from `exhibit`;")
-        output = cursor.fetchall()
-    ins = choicebox("Choice", "Here", ["some", "someone"])
-    inp = multenterbox()
-
-
-def delete_ex(nameExhibit, connection):
-
-    with connection.cursor() as cursor:
-        create_table = f"SELECT loginPerson, nameExhibit FROM `userex` WHERE loginPerson = '{auth.login}';"             #ми беремо логін і ім'я користувача
-        cursor.execute(create_table)
         result = cursor.fetchall()
-        usersExhibit = []                                                                                               # Ліст для назв експонатів, авторизованого користувача
-        for e in result:                                                                                                # Цикл для поповнення ліста
-            usersExhibit.append(e.get('nameExhibit'))
-            break
+    generated_list = []
+    for i in result:
+        generated_list.append(f"№{i.get('idEx')}\nName: {i.get('nameExhibit')}\nYear: {i.get('year')}\n"
+                              f"{i.get('criterion')}\nDescription - {i.get('description')}\n\n")
+    return msgbox("\n".join(generated_list))
 
-    valid = False
-    while valid:                                                                                                        #цикл щоб у користувача було декілька спроб ввести вірно
-        nameEx = enterbox(f"Ваші експонати: '{usersExhibit}'\nВведіть назву експонату для видалення")                   #Вивід назв експонатів, щоб користувач бачив що вводити
-        if nameEx not in usersExhibit:                                                                                  #Перевірка на правильність вводу
-                msgbox('Данного експонату не знайдено')
-                valid = False
-                continue
 
-        else:
+def delete_ex(connection):
+    slash_n = "\n"
+    with connection.cursor() as cursor:
+        cursor.execute(f"SELECT loginPerson, nameExhibit FROM userex WHERE loginPerson = '{auth.login}';")
+        result = cursor.fetchall()
+    if result:
+        allexhibit = []
+        for i in result:
+            allexhibit.append(i.get('nameExhibit'))
+        nameEx = enterbox(f"""Ваші експонати:\n\n{slash_n.join(allexhibit)}\n\nВведіть назву експонату для видалення""")  # Вивід назв експонатів, щоб користувач бачив що вводити
+        with connection.cursor() as cursor:
+            cursor.execute(f"""SELECT * FROM exhibit WHERE nameExhibit = '{nameEx.title()}';""")
+            result = cursor.fetchone()
+        if buttonbox(f"""Название: {result.get('nameExhibit')}\nГод: {result.get('year')}\nОписание: {result.get('description')}\nКритерий: {result.get('criterion')}""", "delete", ["Удалить", "Отмена"]) == "Удалить":
             with connection.cursor() as cursor:
-                show_info = f"SELECT * FROM `exhibit` WHERE nameExhibit = '{nameEx}';"                                  #Якшо все ок, запит на бд для виведення всього про експонат
-                cursor.execute(show_info)
-                result = cursor.fetchall()
-                for e in result:
-                    after_del = buttonbox(f"{e.get('nameExhibit')} - Назва експонату\n{e.get('year')} - Рік експонату\n"#розпарсили данні з дікта
-                                          f"{e.get('description')} - Опис експонату", 'DELETE', ['Видалити', 'Відміна'])#запит на видалення, дві кнопки
-
-                    if after_del == 'Видалити':                                                                         #Якшо +, то видаляємо із бази exhibit та userex
-                        with connection.cursor() as cursor:
-                            create_table = f"DELETE FROM `exhibit` WHERE nameExhibit = '{nameEx}';"
-                            cursor.execute(create_table)
-                            connection.commit()
-                        with connection.cursor() as cursor:
-                            create_table = f"DELETE FROM `userex` WHERE nameExhibit = '{nameEx}';"
-                            cursor.execute(create_table)
-                            connection.commit()
-                            return True
-                    else:                                                                                               #Якшо ні, то закінчуємо функцію
-                        valid = True
-                        return True
-
-
-def showUserex(connection):
-    with connection.cursor() as cursor:
-        select_result = cursor.execute(f"select * from `userex`;")
-        cursor.execute(select_result)
-        result = cursor.fetchall()
-    result_return = []
-    for e in result:
-        result_return.append(f"'{e.get('loginPerson')}' > '{e.get('nameExhibit')}'")
-    return
+                cursor.execute(f"""DELETE FROM userex WHERE loginPerson = '{auth.login}' AND nameExhibit = '{nameEx}';""")
+                cursor.execute(f"""DELETE FROM exhibit WHERE nameExhibit = '{nameEx}';""")
+                connection.commit()
+            return True
+        else:
+            return False
+    else:
+        return msgbox("У Вас нет экспонатов")
 
 
 def show_by_criterion(connection):                      # Вивід експонатів за критерієм на вибір
     choose_criterion = buttonbox("Choose criterion", "Choose criterion", ["Наша эра", "До нашей эры"])
     if choose_criterion == "Наша эра":
         with connection.cursor() as cursor:
-            select_ad = "select * from `exhibit` where criterion = 'наша эра'"
+            select_ad = "select * from exhibit where criterion = 'наша эра'"
             cursor.execute(select_ad)
             result = cursor.fetchall()
     elif choose_criterion == "До нашей эры":
         with connection.cursor() as cursor:
-            select_bc = "select * from `exhibit` where criterion = 'до нашей эры'"
+            select_bc = "select * from exhibit where criterion = 'до нашей эры'"
             cursor.execute(select_bc)
             result = cursor.fetchall()
     generated_list = []
     for i in result:
-        generated_list.append(f"№{i.get('idEx')} | Name: {i.get('nameExhibit')}, Year: {i.get('year')}"
-                              f" {i.get('criterion')}, Description - {i.get('description')}")
-    msgbox("\n".join(generated_list))
+        generated_list.append(f"№{i.get('idEx')}\nName: {i.get('nameExhibit')}\nYear: {i.get('year')}\n"
+                              f"{i.get('criterion')}\nDescription - {i.get('description')}\n\n")
+    return msgbox("\n".join(generated_list))
 
-def show_users_exp(connection):
+
+def show_users_exp(connection):                        # Вивід всіх експонатів прив'язаних до одного певного користувача
     person = enterbox("Login", "Search person")
     with connection.cursor() as cursor:
-        select_exhibit_names = f"select nameExhibit from `userex` where loginPerson = '{person}'"
+        select_exhibit_names = f"select nameExhibit from userex where loginPerson = '{person.lower()}'"
         cursor.execute(select_exhibit_names)
         result = cursor.fetchall()
-        exh_names = []
-        for i in result:
-            exh_names.append(f"{i.get('nameExhibit')}")
-        end_exhibits = []
+    exh_names = []
+    for i in result:
+        exh_names.append(f"{i.get('nameExhibit')}")
+    end_exhibits = []
+    with connection.cursor() as cursor:
         for i in exh_names:
-            select_exhibits = f"select * from `exhibit` where nameExhibit = '{i}'"
+            select_exhibits = f"select * from exhibit where nameExhibit = '{i}'"
             cursor.execute(select_exhibits)
             result = cursor.fetchone()
             end_exhibits.append(result)
-        generated_list = []
-        for i in end_exhibits:
-            generated_list.append(f"№{i.get('idEx')} | Name: {i.get('nameExhibit')}, Year: {i.get('year')}"
-                                  f" {i.get('criterion')}, Description - {i.get('description')}")
-        msgbox("\n".join(generated_list))
+    generated_list = []
+    for i in end_exhibits:
+        generated_list.append(f"№{i.get('idEx')}\nName: {i.get('nameExhibit')}\nYear: {i.get('year')}\n"
+                              f"{i.get('criterion')}\nDescription - {i.get('description')}\n\n")
+    return msgbox("\n".join(generated_list))
