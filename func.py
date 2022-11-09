@@ -11,20 +11,18 @@ def add(insert_info, connection):                       # Через інтер�
 
 
 def showAll(connection):
-    choice = buttonbox("Choice what", "Enter", ["All", "By ID"])
+    choice = buttonbox("Choice what", "Enter", ["All", "Single"])
+    with connection.cursor() as cursor:
+        select_all = cursor.execute(f"select * from 'exhibit';")
+        cursor.execute(select_all)
+        result = cursor.fetchall()
     if choice == "All":
-        with connection.cursor() as cursor:
-            select_all = cursor.execute(f"select * from 'exhibit';")
-            cursor.execute(select_all)
-            result = cursor.fetchall()
-            msgbox(result)
-    elif choice == "By ID":
-        choice = int(enterbox("Enter id:"))
-        with connection.cursor() as cursor:
-            select_all = cursor.execute(f"select * from 'exhibit' where id = {choice};")
-            cursor.execute(select_all)
-            result = cursor.fetchall()
-            msgbox(result)
+        msgbox([e for e in result if result not [] f"{e.get('nameExhibit')} - Назва\n {e.get('year')} - рік\n{e.get('description')} - Опис\n"])
+    elif choice == "Single":
+        choose = enterbox("Enter name")
+        msgbox([e for e in result if choose in e.get('nameExhibit') f"{e.get('nameExhibit')} - Назва\n {e.get('year')} - рік\n{e.get('description')} - Опис\n"])
+
+
 
 
 def insertExp(connection):
