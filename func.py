@@ -94,7 +94,25 @@ def showUserex(connection):
     return
 
 
-def show_users_exp(connection):                        # Вивід всіх експонатів прив'язаних до одного певного користувача
+def show_by_criterion(connection):                      # Вивід експонатів за критерієм на вибір
+    choose_criterion = buttonbox("Choose criterion", "Choose criterion", ["Наша эра", "До нашей эры"])
+    if choose_criterion == "Наша эра":
+        with connection.cursor() as cursor:
+            select_ad = "select * from `exhibit` where criterion = 'наша эра'"
+            cursor.execute(select_ad)
+            result = cursor.fetchall()
+    elif choose_criterion == "До нашей эры":
+        with connection.cursor() as cursor:
+            select_bc = "select * from `exhibit` where criterion = 'до нашей эры'"
+            cursor.execute(select_bc)
+            result = cursor.fetchall()
+    generated_list = []
+    for i in result:
+        generated_list.append(f"№{i.get('idEx')} | Name: {i.get('nameExhibit')}, Year: {i.get('year')}"
+                              f" {i.get('criterion')}, Description - {i.get('description')}")
+    msgbox("\n".join(generated_list))
+
+def show_users_exp(connection):
     person = enterbox("Login", "Search person")
     with connection.cursor() as cursor:
         select_exhibit_names = f"select nameExhibit from `userex` where loginPerson = '{person}'"
@@ -114,23 +132,3 @@ def show_users_exp(connection):                        # Вивід всіх е�
             generated_list.append(f"№{i.get('idEx')} | Name: {i.get('nameExhibit')}, Year: {i.get('year')}"
                                   f" {i.get('criterion')}, Description - {i.get('description')}")
         msgbox("\n".join(generated_list))
-
-
-def show_by_criterion(connection):                      # Вивід експонатів за критерієм на вибір
-    choose_criterion = buttonbox("Choose criterion", "Choose criterion", ["Наша эра", "До нашей эры"])
-    if choose_criterion == "Наша эра":
-        with connection.cursor() as cursor:
-            select_ad = "select * from `exhibit` where criterion = 'наша эра'"
-            cursor.execute(select_ad)
-            result = cursor.fetchall()
-    elif choose_criterion == "До нашей эры":
-        with connection.cursor() as cursor:
-            select_bc = "select * from `exhibit` where criterion = 'до нашей эры'"
-            cursor.execute(select_bc)
-            result = cursor.fetchall()
-    generated_list = []
-    for i in result:
-        generated_list.append(f"№{i.get('idEx')} | Name: {i.get('nameExhibit')}, Year: {i.get('year')}"
-                              f" {i.get('criterion')}, Description - {i.get('description')}")
-    msgbox("\n".join(generated_list))
-
