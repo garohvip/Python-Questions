@@ -1,48 +1,50 @@
+from easygui import *
 login = ''
+password = ''
 def authorization(connection):
+    global login
+    global password
     with connection.cursor() as cursor:
         show_all = "SELECT login, password FROM `users`"
         cursor.execute(show_all)
         result = cursor.fetchall()
-
-    valid = False
-    while not valid:
+    while True:
         author = multpasswordbox('Введіть данні для авторизації', 'authorizaton', ['Login', 'Password'])
-        for i in result:
-
-            if author[0].lower == i.get('login') and author[1].lower == i.get('password'):
-                msgbox('Авторизація успішна')
-                login = author[0].lower       #Для того щоб брати цю інфу в файлі func
-                password = author[1].lower
-                valid = True
-
-            else:
-                msgbox("Авторизація не успішна, спробуйте ще.")
-                valid = False
-                return True
+        if result:
+            for i in result:
+                if author[0].lower() == i.get('login') and author[1] == i.get('password'):
+                    msgbox('Авторизація успішна')
+                    login = author[0].lower()
+                    password = author[1].lower()
+                    return True
+                else:
+                    msgbox("Авторизація не успішна, спробуйте ще.")
+                    return False
+        else:
+            return False
 
 
 def registration(connection):
+    global login
+    global password
     with connection.cursor() as cursor:
-        show_all = 'SELECT login FROM `users`'
-        cursor.execute(show_all)
+        cursor.execute(f'SELECT login FROM `users`')
         result = cursor.fetchall()
-    valid = False
-    while not valid:
-        info = multpasswordbox('Введіть данні для реєстрації', 'registration', ['Name','Login', 'Password'])
-        for e in result:
-
-            if info[1] == e.get('login'):
-                msgbox('Такий логін вже існує вигадайте інший.')
-                valid = False
-                continue
-
-            else:
-                login = info[1].lower
-                password = info[2].lower
-                with connection.cursor() as cursor:
-                    f"INSERT `users` (name, login, password) values ({info[0].lower},{info[1].lower},{info[2].lower})"
-                    connection.commit()
-                    valid = True
+    while True:
+        info = multpasswordbox('Введіть данні для реєстрації', 'registration', ['Name', 'Login', 'Password'])
+        if result:
+            for e in result:
+                if info[1].lower() == e.get('login'):
+                    msgbox('Такий логін вже існує вигадайте інший.')
+                else:
+                    login = info[1].lower()
+                    with connection.cursor() as cursor:
+                        cursor.execute(f"INSERT INTO `users` (name, login, password) VALUES ('{info[0]}', '{info[1].lower()}', '{info[2]}');")
+                        connection.commit()
                     return True
-
+        else:
+            login = info[1].lower()
+            with connection.cursor() as cursor:
+                cursor.execute(f"INSERT INTO `users` (name, login, password) VALUES ('{info[0]}', '{info[1].lower()}', '{info[2]}');")
+                connection.commit()
+            return True
