@@ -17,10 +17,15 @@ def showAll(connection):
         cursor.execute(select_all)
         result = cursor.fetchall()
     if choice == "All":
-        msgbox([e for e in result if result not [] f"{e.get('nameExhibit')} - Назва\n {e.get('year')} - рік\n{e.get('description')} - Опис\n"])
+        info = []
+        for e in result:
+            info.append(f"'{e.get('nameExhibit')}' - Назва\n '{e.get('year')}' - рік\n'{e.get('description')}' - Опис\n")
+        msgbox(f'{info}')
     elif choice == "Single":
         choose = enterbox("Enter name")
-        msgbox([e for e in result if choose in e.get('nameExhibit') f"{e.get('nameExhibit')} - Назва\n {e.get('year')} - рік\n{e.get('description')} - Опис\n"])
+        for e in result:
+            if e.get('nameExhibit') == choose:
+                msgbox(f"{e.get('nameExhibit')}' - Назва\n '{e.get('year')}' - рік\n'{e.get('description')}' - Опис\n")
     return True
 
 
