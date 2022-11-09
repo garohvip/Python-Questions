@@ -112,3 +112,63 @@ def show_users_exp(connection):                        # Вивід всіх е�
         generated_list.append(f"№{i.get('idEx')}\nName: {i.get('nameExhibit')}\nYear: {i.get('year')}\n"
                               f"{i.get('criterion')}\nDescription - {i.get('description')}\n\n")
     return msgbox("\n".join(generated_list))
+
+
+def editExhibit(connection):
+    with connection.cursor() as cursor:
+        cursor.execute(f"""SELECT nameExhibit FROM `userex` WHERE loginPerson = '{auth.login}'""")
+        result = cursor.fetchall()
+    if result:
+        all_exhibit = []
+        for i in result:
+            all_exhibit.append(f"{i.get('nameExhibit')}")
+        enter_edit = choicebox(f"\n".join(all_exhibit), "Choice", [i for i in all_exhibit])
+        with connection.cursor() as cursor:
+            cursor.execute(f"""SELECT * FROM `exhibit` WHERE nameExhibit = '{enter_edit}'""")
+            result_exhibit = cursor.fetchone()
+        if buttonbox(f"№: {result_exhibit.get('idEx')}\nНазвание: {result_exhibit.get('nameExhibit')}\nГод: {result_exhibit.get('year')}\nОписание: {result_exhibit.get('description')}\nКритерий: {result_exhibit.get('criterion')}\n\nЧто хотите изменить?", "enter", ["Все данные кроме критерия", "Критерий"]) == "Все данные кроме критеря":
+            while True:
+                enter_new_data = multenterbox(f"№: {result_exhibit.get('idEx')}\nНазвание: {result_exhibit.get('nameExhibit')}\nГод: {result_exhibit.get('year')}\nОписание: {result_exhibit.get('description')}\nКритерий: {result_exhibit.get('criterion')}", "enter", ["Название", "Год", "Описание"])
+                with connection.cursor() as cursor:
+                    if enter_new_data[0] == "" and enter_new_data[1] == "":
+                        cursor.execute(f"""UPDATE `exhibit` SET description = '{enter_new_data[2]}'""")
+                        connection.commit()
+                        return msgbox("Данные успешно обновлены")
+                    elif enter_new_data[0] == "" and enter_new_data[2] == "":
+                        cursor.execute(f"""UPDATE `exhibit` SET year = {enter_new_data[1]}""")
+                        connection.commit()
+                        return msgbox("Данные успешно обновлены")
+                    elif enter_new_data[1] == "" and enter_new_data[2] == "":
+                        cursor.execute(f"""UPDATE `exhibit` SET nameExhibit = '{enter_new_data[0]}'""")
+                        cursor.execute(f"""UPDATE `userex` SET nameExhibit = '{enter_new_data[0]}' WHERE loginPerson = '{auth.login}'""")
+                        connection.commit()
+                        return msgbox("Данные успешно обновлены")
+                    elif enter_new_data[0] == "":
+                        cursor.execute(f"""UPDATE `exhibit` SET year = {enter_new_data[1]}, description = '{enter_new_data[2]}'""")
+                        connection.commit()
+                        return msgbox("Данные успешно обновлены")
+                    elif enter_new_data[1] == "":
+                        cursor.execute(f"""UPDATE `exhibit` SET nameExhibit = '{enter_new_data[0]}', description = '{enter_new_data[2]}'""")
+                        cursor.execute(f"""UPDATE `userex` SET nameExhibit = '{enter_new_data[0]}' WHERE loginPerson = '{auth.login}'""")
+                        connection.commit()
+                        return msgbox("Данные успешно обновлены")
+                    elif enter_new_data[2] == "":
+                        cursor.execute(f"""UPDATE `exhibit` SET nameExhibit = '{enter_new_data[0]}', year = {enter_new_data[1]}""")
+                        cursor.execute(f"""UPDATE `userex` SET nameExhibit = '{enter_new_data[0]}' WHERE loginPerson = '{auth.login}'""")
+                        connection.commit()
+                        return msgbox("Данные успешно обновлены")
+                    elif enter_new_data[0] == "" and enter_new_data[1] == "" and enter_new_data[2] == "":
+                        msgbox("Данные не должны быть пусты")
+                    else:
+                        cursor.execute(f"""UPDATE `exhibit` SET nameExhibit = '{enter_new_data[0]}', year = {enter_new_data[1]}, description = '{enter_new_data[2]}'""")
+                        cursor.execute(f"""UPDATE `userex` SET nameExhibit = '{enter_new_data[0]}' WHERE loginPerson = '{auth.login}'""")
+                        connection.commit()
+                        return msgbox("Данные успешно обновлены")
+        else:
+            enter_criterion = choicebox(f"Критерий сейчас: {result_exhibit.get('criterion')}\n\nВыберите новый критерий", "choice", ["До нашей эры", "Наша эра"])
+            with connection.cursor() as cursor:
+                cursor.execute(f"""UPDATE `exhibit` SET criterion = '{enter_criterion.lower()}'""")
+                connection.commit()
+            return msgbox("Данные успешно обновлены")
+    else:
+        return False

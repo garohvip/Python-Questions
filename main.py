@@ -48,12 +48,12 @@ try:
                             else:
                                 msgbox("Операция отменена")
                         elif enter_action == "Изменить экспонат":
-                            pass
+                            if editExhibit(connection):
+                                msgbox("Данного экспоната нет, либо он принадлежит не Вам")
                         else:
                             break
                 else:
                     msgbox("Неверный логин или пароль")
-
             elif zapros == "Регистрация":
                 if registration(connection):
                     msgbox("Успешная регистрация")
