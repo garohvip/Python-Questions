@@ -2,10 +2,11 @@ from easygui import *
 import auth
 
 
-def add(insert_info, connection):                       # Через інтерфейс(multenterbox) отримуємо всю інфу списком
+def add(connection):
+    insert_info = multenterbox("Add exhibit", "Add", ["Name", "Year", "Criterion[до нашей эры/наша эра]", "Description"])
     with connection.cursor() as cursor:
-        data = "insert into `exhibit` (nameExhibit, year, description) values " \
-                             f"('{insert_info[0]}', '{insert_info[1]}', '{insert_info[2]}')"
+        data = "insert into `exhibit` (nameExhibit, year, criterion, description) values " \
+                             f"('{insert_info[0]}', '{insert_info[1]}', '{insert_info[2]}', '{insert_info[3]}')"
         cursor.execute(data)
         connection.commit()
 
@@ -13,7 +14,7 @@ def add(insert_info, connection):                       # Через інтер�
 def showAll(connection):
     choice = buttonbox("Choice what", "Enter", ["All", "Single"])
     with connection.cursor() as cursor:
-        select_all = cursor.execute(f"select * from 'exhibit';")
+        select_all = cursor.execute(f"select * from `exhibit`;")
         cursor.execute(select_all)
         result = cursor.fetchall()
     if choice == "All":
@@ -33,7 +34,7 @@ def showAll(connection):
 
 def insertExp(connection):
     with connection.cursor() as cursor:
-        cursor.execute(f"select * from 'exhibit';")
+        cursor.execute(f"select * from `exhibit`;")
         output = cursor.fetchall()
     ins = choicebox("Choice", "Here", ["some", "someone"])
     inp = multenterbox()
@@ -84,11 +85,52 @@ def delete_ex(nameExhibit, connection):
 
 def showUserex(connection):
     with connection.cursor() as cursor:
-        select_result = cursor.execute(f"select * from 'userex';")
+        select_result = cursor.execute(f"select * from `userex`;")
         cursor.execute(select_result)
         result = cursor.fetchall()
     result_return = []
     for e in result:
         result_return.append(f"'{e.get('loginPerson')}' > '{e.get('nameExhibit')}'")
     return
+
+
+def show_users_exp(connection):                        # Вивід всіх експонатів прив'язаних до одного певного користувача
+    person = enterbox("Login", "Search person")
+    with connection.cursor() as cursor:
+        select_exhibit_names = f"select nameExhibit from `userex` where loginPerson = '{person}'"
+        cursor.execute(select_exhibit_names)
+        result = cursor.fetchall()
+        exh_names = []
+        for i in result:
+            exh_names.append(f"{i.get('nameExhibit')}")
+        end_exhibits = []
+        for i in exh_names:
+            select_exhibits = f"select * from `exhibit` where nameExhibit = '{i}'"
+            cursor.execute(select_exhibits)
+            result = cursor.fetchone()
+            end_exhibits.append(result)
+        generated_list = []
+        for i in end_exhibits:
+            generated_list.append(f"№{i.get('idEx')} | Name: {i.get('nameExhibit')}, Year: {i.get('year')}"
+                                  f" {i.get('criterion')}, Description - {i.get('description')}")
+        msgbox("\n".join(generated_list))
+
+
+def show_by_criterion(connection):                      # Вивід експонатів за критерієм на вибір
+    choose_criterion = buttonbox("Choose criterion", "Choose criterion", ["Наша эра", "До нашей эры"])
+    if choose_criterion == "Наша эра":
+        with connection.cursor() as cursor:
+            select_ad = "select * from `exhibit` where criterion = 'наша эра'"
+            cursor.execute(select_ad)
+            result = cursor.fetchall()
+    elif choose_criterion == "До нашей эры":
+        with connection.cursor() as cursor:
+            select_bc = "select * from `exhibit` where criterion = 'до нашей эры'"
+            cursor.execute(select_bc)
+            result = cursor.fetchall()
+    generated_list = []
+    for i in result:
+        generated_list.append(f"№{i.get('idEx')} | Name: {i.get('nameExhibit')}, Year: {i.get('year')}"
+                              f" {i.get('criterion')}, Description - {i.get('description')}")
+    msgbox("\n".join(generated_list))
 
